@@ -1,40 +1,506 @@
-Weekly Deep Work Planner
-Block exact times, set task durations — get a personalized hourly schedule
-1 Energy
-›
-2 Block time
-›
-3 Tasks
-›
-4 Plan
-›
-5 Insights
-Select your days
-Choose which days you want to plan.
-Mon
-Tue
-Wed
-Thu
-Fri
-Sat
-Sun
-Your energy profile
-How does your energy typically flow through the day? The planner uses this to place the right tasks at the right hours.
-I usually wake up at
-        5:00 AM
-        6:00 AM
-        7:00 AM
-        8:00 AM
-        9:00 AM
-        10:00 AM
-      
-Morning energy
 
-High
-Afternoon energy
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Deep Work Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F5F2ED;--surface:#FDFBF8;--border:#E2DDD6;--border-strong:#C8C1B8;
+    --text:#1C1917;--text-muted:#78716C;--text-faint:#A8A29E;
+    --purple:#4F3FBE;--purple-light:#EEF0FD;--purple-mid:#8B7FD4;
+    --green:#1A6B4A;--green-light:#E8F5EE;
+    --amber:#92400E;--amber-light:#FEF3C7;
+    --red:#9B1C1C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .ph{background:var(--surface);border-bottom:1px solid var(--border);padding:1.75rem 2.5rem 1.25rem}
+  .ph h1{font-family:'DM Serif Display',serif;font-size:1.9rem;font-weight:400;letter-spacing:-.02em;margin-bottom:.2rem}
+  .ph p{font-size:.825rem;color:var(--text-muted);font-family:'DM Mono',monospace}
+  .stepper{display:flex;align-items:center;padding:.875rem 2.5rem;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;gap:0}
+  .si{display:flex;align-items:center;gap:.5rem;padding:.35rem .75rem;border-radius:99px;font-size:.8rem;font-weight:500;color:var(--text-faint);white-space:nowrap}
+  .si.active{color:var(--purple);background:var(--purple-light)}
+  .si.done{color:var(--green)}
+  .sn{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-family:'DM Mono',monospace;font-weight:500;flex-shrink:0}
+  .si.active .sn{background:var(--purple);color:#fff}
+  .si.done .sn{background:var(--green);color:#fff}
+  .sa{color:var(--border-strong);margin:0 .2rem;font-size:.75rem;flex-shrink:0}
+  .main{padding:1.75rem 2.5rem;max-width:980px}
+  .sp{display:none}.sp.active{display:block}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+  .ct{font-family:'DM Serif Display',serif;font-size:1.05rem;font-weight:400;margin-bottom:.3rem}
+  .cs{font-size:.825rem;color:var(--text-muted);margin-bottom:1.1rem;line-height:1.6}
+  .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:1.1rem}
+  .db{padding:.5rem .2rem;border:1px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:500;cursor:pointer;text-align:center;background:var(--bg);color:var(--text-muted);transition:all .15s;font-family:'Instrument Sans',sans-serif}
+  .db:hover{border-color:var(--purple-mid);color:var(--purple)}
+  .db.on{border-color:var(--purple);background:var(--purple-light);color:var(--purple);font-weight:600}
+  .er{display:flex;align-items:center;gap:1rem;margin-bottom:.875rem}
+  .el{font-size:.825rem;color:var(--text-muted);min-width:130px}
+  input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--purple);cursor:pointer;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--purple)}
+  .ev{font-size:.8rem;font-family:'DM Mono',monospace;color:var(--purple);font-weight:500;min-width:56px;text-align:right}
+  .wr{display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem}
+  .wr label{font-size:.825rem;color:var(--text-muted)}
+  select{font-size:.825rem;padding:.4rem .75rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;outline:none;cursor:pointer}
+  select:focus{border-color:var(--purple)}
+  input[type=text],input[type=number]{font-size:.875rem;padding:.5rem .875rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;outline:none;transition:border-color .15s}
+  input[type=text]:focus,input[type=number]:focus{border-color:var(--purple);background:var(--surface)}
+  input[type=text]::placeholder,input[type=number]::placeholder{color:var(--text-faint)}
+  .btn{font-size:.825rem;font-weight:500;padding:.5rem 1.1rem;border-radius:8px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .15s;border:1px solid var(--border);background:var(--surface);color:var(--text);white-space:nowrap}
+  .btn:hover{background:var(--bg);border-color:var(--border-strong)}
+  .btp{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .btp:hover{background:#3d2fa8;border-color:#3d2fa8}
+  .add-row{display:flex;gap:8px;margin-bottom:.875rem;flex-wrap:wrap;align-items:center}
+  .sl{font-size:.75rem;font-weight:500;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;font-family:'DM Mono',monospace}
+  .dc-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.875rem}
+  .dcb{padding:4px 10px;border:1px solid var(--border);border-radius:99px;font-size:.75rem;font-weight:500;cursor:pointer;background:var(--bg);color:var(--text-muted);transition:all .15s;font-family:'DM Mono',monospace}
+  .dcb:hover{border-color:var(--purple-mid);color:var(--purple)}
+  .dcb.on{border-color:var(--purple);background:var(--purple-light);color:var(--purple)}
+  .item-row{display:flex;align-items:center;gap:8px;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:var(--bg)}
+  .item-row:hover{border-color:var(--border-strong)}
+  .in{flex:1;font-size:.875rem}
+  .pills{display:flex;gap:4px;flex-wrap:wrap}
+  .pill{font-size:.68rem;font-weight:600;padding:2px 7px;border-radius:99px;background:var(--purple-light);color:var(--purple);font-family:'DM Mono',monospace}
+  .pill-gray{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+  .badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:99px;text-transform:uppercase;font-family:'DM Mono',monospace;white-space:nowrap}
+  .bd{background:var(--purple-light);color:var(--purple)}
+  .ba{background:var(--green-light);color:var(--green)}
+  .bs{background:var(--amber-light);color:var(--amber)}
+  .bb{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+  .rb{background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:1rem;line-height:1;padding:0 2px;transition:color .15s}
+  .rb:hover{color:var(--red)}
+  .empty{font-size:.825rem;color:var(--text-faint);padding:.75rem 0;font-style:italic}
+  .nav{display:flex;gap:8px;margin-top:1.25rem}
 
-Low
-Evening energy
+  /* Schedule grid */
+  .schedule-wrap{overflow-x:auto;margin-bottom:1rem}
+  .schedule-table{border-collapse:collapse;min-width:100%;font-size:.75rem}
+  .schedule-table th{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-family:'DM Mono',monospace;padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);text-align:center;white-space:nowrap;position:sticky;top:0}
+  .schedule-table td{border:1px solid var(--border);padding:0;vertical-align:top;min-width:90px}
+  .time-label{font-size:.7rem;font-family:'DM Mono',monospace;color:var(--text-faint);padding:.35rem .5rem;background:var(--bg);text-align:right;white-space:nowrap;min-width:64px}
+  .slot{padding:.3rem .5rem;min-height:30px;display:flex;flex-direction:column;justify-content:center}
+  .slot-empty{background:var(--surface)}
+  .slot-blocked{background:#F1EFE8}
+  .slot-recovery{background:var(--surface)}
+  .slot-deep{background:var(--purple-light);border-left:3px solid var(--purple)}
+  .slot-admin{background:var(--green-light);border-left:3px solid #1A6B4A}
+  .slot-social{background:var(--amber-light);border-left:3px solid #D97706}
+  .slot-type{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
+  .slot-name{font-size:.72rem;color:var(--text);line-height:1.3;margin-top:1px;word-break:break-word}
+  .slot-blocked .slot-type{color:var(--text-faint)}
+  .slot-blocked .slot-name{color:var(--text-muted)}
+  .slot-deep .slot-type{color:var(--purple)}
+  .slot-admin .slot-type{color:var(--green)}
+  .slot-social .slot-type{color:var(--amber)}
+  .legend{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .li{display:flex;align-items:center;gap:6px;font-size:.775rem;color:var(--text-muted)}
+  .ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+  .insight{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:.75rem}
+  .il{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);font-family:'DM Mono',monospace;margin-bottom:.4rem}
+  .it{font-size:.875rem;color:var(--text);line-height:1.65}
+  @media(max-width:600px){.ph,.main,.stepper{padding:1.25rem}}
+</style>
+</head>
+<body>
+<div class="ph">
+  <h1>Weekly Deep Work Planner</h1>
+  <p>Block exact times, set task durations — get a personalized hourly schedule</p>
+</div>
+<div class="stepper">
+  <div class="si active" id="si0"><div class="sn">1</div> Energy</div>
+  <span class="sa">›</span>
+  <div class="si" id="si1"><div class="sn">2</div> Block time</div>
+  <span class="sa">›</span>
+  <div class="si" id="si2"><div class="sn">3</div> Tasks</div>
+  <span class="sa">›</span>
+  <div class="si" id="si3"><div class="sn">4</div> Plan</div>
+  <span class="sa">›</span>
+  <div class="si" id="si4"><div class="sn">5</div> Insights</div>
+</div>
+<div class="main">
 
-Medium
-Next →
+<!-- STEP 1 -->
+<div class="sp active" id="p0">
+  <div class="card">
+    <div class="ct">Select your days</div>
+    <div class="cs">Choose which days you want to plan.</div>
+    <div class="days-grid">
+      <button class="db on" data-day="Mon">Mon</button>
+      <button class="db on" data-day="Tue">Tue</button>
+      <button class="db on" data-day="Wed">Wed</button>
+      <button class="db on" data-day="Thu">Thu</button>
+      <button class="db on" data-day="Fri">Fri</button>
+      <button class="db" data-day="Sat">Sat</button>
+      <button class="db" data-day="Sun">Sun</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Your energy profile</div>
+    <div class="cs">How does your energy typically flow through the day? The planner uses this to place the right tasks at the right hours.</div>
+    <div class="wr">
+      <label>I usually wake up at</label>
+      <select id="wake" onchange="rebuildTimeOpts()">
+        <option value="5">5:00 AM</option>
+        <option value="6">6:00 AM</option>
+        <option value="7" selected>7:00 AM</option>
+        <option value="8">8:00 AM</option>
+        <option value="9">9:00 AM</option>
+        <option value="10">10:00 AM</option>
+      </select>
+    </div>
+    <div class="er"><span class="el">Morning energy</span><input type="range" min="1" max="5" value="4" step="1" id="em" oninput="upd('em','evm')"><span class="ev" id="evm">High</span></div>
+    <div class="er"><span class="el">Afternoon energy</span><input type="range" min="1" max="5" value="2" step="1" id="ea" oninput="upd('ea','eva')"><span class="ev" id="eva">Low</span></div>
+    <div class="er"><span class="el">Evening energy</span><input type="range" min="1" max="5" value="3" step="1" id="ee" oninput="upd('ee','eve')"><span class="ev" id="eve">Medium</span></div>
+  </div>
+  <div class="nav"><button class="btn btp" onclick="go(1)">Next →</button></div>
+</div>
+
+<!-- STEP 2 -->
+<div class="sp" id="p1">
+  <div class="card">
+    <div class="ct">Block specific time slots</div>
+    <div class="cs">Add any fixed commitments with their exact times. The planner will not schedule tasks during these windows. You can skip this step if your schedule is open.</div>
+    <div class="add-row">
+      <input type="text" id="bl-label" placeholder="e.g. Stats lecture, Gym" style="flex:2;min-width:140px">
+      <select id="bl-start" style="min-width:90px"></select>
+      <span style="font-size:.825rem;color:var(--text-muted)">to</span>
+      <select id="bl-end" style="min-width:90px"></select>
+    </div>
+    <div class="sl">On which days?</div>
+    <div class="dc-wrap" id="bl-days"></div>
+    <button class="btn btp" onclick="addBlock()" style="margin-bottom:1rem">+ Block time</button>
+    <div id="bl-list"><div class="empty">No blocked times yet.</div></div>
+  </div>
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <button class="btn btp" onclick="go(2)">Next →</button>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="sp" id="p2">
+  <div class="card">
+    <div class="ct">Add your tasks</div>
+    <div class="cs">Add each task, pick its type and how many hours per day you want to spend on it. Assign it to the days it belongs to.</div>
+    <div class="add-row">
+      <input type="text" id="tk-name" placeholder="e.g. Study for exam" style="flex:2;min-width:140px" onkeydown="if(event.key==='Enter')addTask()">
+      <select id="tk-type" style="min-width:100px">
+        <option value="deep">Deep work</option>
+        <option value="admin">Admin</option>
+        <option value="social">Social</option>
+      </select>
+    </div>
+    <div class="add-row" style="margin-bottom:.875rem">
+      <span style="font-size:.825rem;color:var(--text-muted);white-space:nowrap">Hours per day:</span>
+      <select id="tk-hours" style="min-width:80px">
+        <option value="0.5">0.5 h</option>
+        <option value="1" selected>1 h</option>
+        <option value="1.5">1.5 h</option>
+        <option value="2">2 h</option>
+        <option value="2.5">2.5 h</option>
+        <option value="3">3 h</option>
+        <option value="3.5">3.5 h</option>
+        <option value="4">4 h</option>
+        <option value="5">5 h</option>
+        <option value="6">6 h</option>
+      </select>
+    </div>
+    <div class="sl">Assign to days</div>
+    <div class="dc-wrap" id="tk-days"></div>
+    <button class="btn btp" onclick="addTask()" style="margin-bottom:1rem">+ Add task</button>
+    <div id="tk-list"><div class="empty">No tasks yet — add your first one above.</div></div>
+  </div>
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <button class="btn btp" onclick="go(3)">Generate plan →</button>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="sp" id="p3">
+  <div class="card">
+    <div class="ct">Your weekly schedule</div>
+    <div class="cs">Tasks are placed hour by hour based on your energy. Deep work lands in your peak hours, admin fills the rest. Blocked slots are reserved.</div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:var(--purple)"></div> Deep work</div>
+      <div class="li"><div class="ld" style="background:#1A6B4A"></div> Admin</div>
+      <div class="li"><div class="ld" style="background:#D97706"></div> Social</div>
+      <div class="li"><div class="ld" style="background:#F1EFE8;border:1px solid var(--border-strong)"></div> Blocked</div>
+      <div class="li"><div class="ld" style="background:var(--surface);border:1px solid var(--border)"></div> Free</div>
+    </div>
+    <div class="schedule-wrap"><table class="schedule-table" id="sched-table"></table></div>
+  </div>
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Edit tasks</button>
+    <button class="btn btp" onclick="go(4)">See insights →</button>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="sp" id="p4">
+  <div class="card">
+    <div class="ct">Key insights for your week</div>
+    <div class="cs">Based on your energy profile and task distribution.</div>
+    <div id="ins-out"></div>
+  </div>
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back to plan</button>
+    <button class="btn" onclick="resetAll()">Start over</button>
+  </div>
+</div>
+
+</div>
+<script>
+const tasks=[], blocks=[];
+let tid=0, bid=0;
+const EL=v=>['Very low','Low','Medium','High','Peak'][v-1];
+
+function getSelDays(){return[...document.querySelectorAll('.db.on')].map(b=>b.dataset.day)}
+function upd(s,v){document.getElementById(v).textContent=EL(+document.getElementById(s).value)}
+
+function fmt24(h,m){const ap=h>=12?'PM':'AM';const hh=h>12?h-12:h===0?12:h;return`${hh}:${m===0?'00':'30'} ${ap}`}
+
+function rebuildTimeOpts(){
+  const w=+document.getElementById('wake').value;
+  const start=document.getElementById('bl-start');
+  const end=document.getElementById('bl-end');
+  start.innerHTML='';end.innerHTML='';
+  for(let h=w;h<24;h++){
+    for(let m=0;m<60;m+=30){
+      const v=`${h}:${m===0?'00':'30'}`;
+      const label=fmt24(h,m);
+      start.innerHTML+=`<option value="${v}">${label}</option>`;
+      end.innerHTML+=`<option value="${v}">${label}</option>`;
+    }
+  }
+  if(end.options.length>2)end.selectedIndex=2;
+}
+
+function parseTime(str){const[h,m]=str.split(':').map(Number);return{h,m}}
+
+function buildDayBtns(containerId){
+  const sel=getSelDays();
+  const c=document.getElementById(containerId);
+  c.innerHTML=sel.map(d=>`<button class="dcb on" data-day="${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('');
+}
+
+function getChecked(cid){return[...document.querySelectorAll(`#${cid} .dcb.on`)].map(b=>b.dataset.day)}
+
+function addBlock(){
+  const label=document.getElementById('bl-label').value.trim();
+  const st=parseTime(document.getElementById('bl-start').value);
+  const en=parseTime(document.getElementById('bl-end').value);
+  const days=getChecked('bl-days');
+  if(!label){alert('Please enter a label.');return}
+  if(!days.length){alert('Please select at least one day.');return}
+  if(st.h*60+st.m>=en.h*60+en.m){alert('End time must be after start time.');return}
+  blocks.push({id:bid++,label,startH:st.h,startM:st.m,endH:en.h,endM:en.m,days});
+  document.getElementById('bl-label').value='';
+  buildDayBtns('bl-days');
+  renderBlocks();
+}
+
+function removeBlock(id){const i=blocks.findIndex(b=>b.id===id);if(i>-1)blocks.splice(i,1);renderBlocks()}
+
+function renderBlocks(){
+  const el=document.getElementById('bl-list');
+  if(!blocks.length){el.innerHTML='<div class="empty">No blocked times yet.</div>';return}
+  el.innerHTML=blocks.map(b=>`
+    <div class="item-row">
+      <span class="in">${b.label}</span>
+      <div class="pills">${b.days.map(d=>`<span class="pill">${d}</span>`).join('')}</div>
+      <span class="badge bb">${fmt24(b.startH,b.startM)} – ${fmt24(b.endH,b.endM)}</span>
+      <button class="rb" onclick="removeBlock(${b.id})">×</button>
+    </div>`).join('');
+}
+
+function addTask(){
+  const name=document.getElementById('tk-name').value.trim();
+  const type=document.getElementById('tk-type').value;
+  const hours=+document.getElementById('tk-hours').value;
+  const days=getChecked('tk-days');
+  if(!name){alert('Please enter a task name.');return}
+  if(!days.length){alert('Please select at least one day.');return}
+  tasks.push({id:tid++,name,type,hours,days});
+  document.getElementById('tk-name').value='';
+  buildDayBtns('tk-days');
+  renderTasks();
+}
+
+function removeTask(id){const i=tasks.findIndex(t=>t.id===id);if(i>-1)tasks.splice(i,1);renderTasks()}
+
+function renderTasks(){
+  const el=document.getElementById('tk-list');
+  if(!tasks.length){el.innerHTML='<div class="empty">No tasks yet.</div>';return}
+  el.innerHTML=tasks.map(t=>`
+    <div class="item-row">
+      <span class="in">${t.name}</span>
+      <div class="pills">${t.days.map(d=>`<span class="pill">${d}</span>`).join('')}</div>
+      <span class="badge bb">${t.hours}h/day</span>
+      <span class="badge b${t.type[0]}">${t.type==='deep'?'Deep':t.type==='admin'?'Admin':'Social'}</span>
+      <button class="rb" onclick="removeTask(${t.id})">×</button>
+    </div>`).join('');
+}
+
+function getEnergyForHour(hourOffset){
+  const em=+document.getElementById('em').value;
+  const ea=+document.getElementById('ea').value;
+  const ee=+document.getElementById('ee').value;
+  if(hourOffset<3)return em;
+  if(hourOffset<5)return Math.round((em+ea)/2);
+  if(hourOffset<9)return ea;
+  return ee;
+}
+
+function isSlotBlocked(day,h,m){
+  const slotStart=h*60+m;
+  const slotEnd=slotStart+30;
+  return blocks.some(b=>{
+    if(!b.days.includes(day))return false;
+    const bs=b.startH*60+b.startM;
+    const be=b.endH*60+b.endM;
+    return bs<slotEnd&&be>slotStart;
+  });
+}
+
+function getBlockLabel(day,h,m){
+  const slotStart=h*60+m;
+  const slotEnd=slotStart+30;
+  const b=blocks.find(b=>b.days.includes(day)&&b.startH*60+b.startM<slotEnd&&b.endH*60+b.endM>slotStart);
+  return b?b.label:'';
+}
+
+function buildDaySchedule(day){
+  const w=+document.getElementById('wake').value;
+  const numHours=13;
+  const slots=[];
+  for(let i=0;i<numHours;i++){
+    const h=w+i;
+    if(h>=24)break;
+    for(let m=0;m<60;m+=30){
+      const energy=getEnergyForHour(i+(m===30?.5:0));
+      const blocked=isSlotBlocked(day,h,m);
+      const blockedLabel=blocked?getBlockLabel(day,h,m):'';
+      slots.push({h,m,energy,blocked,blockedLabel,task:null,taskStart:false});
+    }
+  }
+
+  const dayTasks=tasks.filter(t=>t.days.includes(day));
+  const deepTasks=dayTasks.filter(t=>t.type==='deep');
+  const socialTasks=dayTasks.filter(t=>t.type==='social');
+  const adminTasks=dayTasks.filter(t=>t.type==='admin');
+
+  function assignTask(task,slotsPool){
+    const need=Math.round(task.hours*2);
+    let assigned=0;
+    for(let i=0;i<slotsPool.length&&assigned<need;i++){
+      if(!slotsPool[i].blocked&&!slotsPool[i].task){
+        slotsPool[i].task=task;
+        if(assigned===0)slotsPool[i].taskStart=true;
+        assigned++;
+      }
+    }
+  }
+
+  const freeByEnergyDesc=[...slots].sort((a,b)=>b.energy-a.energy);
+  deepTasks.forEach(t=>assignTask(t,freeByEnergyDesc));
+
+  const afterDeep=[...slots].filter(s=>!s.task&&!s.blocked).sort((a,b)=>b.energy-a.energy);
+  socialTasks.forEach(t=>assignTask(t,afterDeep));
+
+  const remaining=[...slots].filter(s=>!s.task&&!s.blocked);
+  adminTasks.forEach(t=>assignTask(t,remaining));
+
+  return slots;
+}
+
+function renderPlan(){
+  const days=getSelDays();
+  const w=+document.getElementById('wake').value;
+  const table=document.getElementById('sched-table');
+  if(!days.length){table.innerHTML='<tr><td class="empty" style="padding:1rem">No days selected.</td></tr>';return}
+
+  const schedules={};
+  days.forEach(d=>{schedules[d]=buildDaySchedule(d)});
+
+  const numHours=13;
+  let html='<thead><tr><th style="min-width:64px">Time</th>';
+  days.forEach(d=>{html+=`<th>${d}</th>`});
+  html+='</tr></thead><tbody>';
+
+  for(let i=0;i<numHours;i++){
+    const h=w+i;
+    if(h>=24)break;
+    for(let m=0;m<60;m+=30){
+      html+=`<tr><td class="time-label">${fmt24(h,m)}</td>`;
+      days.forEach(d=>{
+        const slot=schedules[d].find(s=>s.h===h&&s.m===m);
+        if(!slot){html+='<td></td>';return}
+        if(slot.blocked){
+          html+=`<td><div class="slot slot-blocked"><div class="slot-type">Blocked</div><div class="slot-name">${slot.blockedLabel}</div></div></td>`;
+          return;
+        }
+        if(slot.task){
+          const cls=`slot-${slot.task.type}`;
+          const typeLabel=slot.task.type==='deep'?'Deep work':slot.task.type==='admin'?'Admin':'Social';
+          html+=`<td><div class="slot ${cls}"><div class="slot-type">${typeLabel}</div><div class="slot-name">${slot.taskStart?slot.task.name:''}</div></div></td>`;
+          return;
+        }
+        const e=slot.energy;
+        const lbl=e<=2?'Recovery':'Free';
+        html+=`<td><div class="slot slot-recovery"><div class="slot-type" style="color:var(--text-faint)">${lbl}</div></div></td>`;
+      });
+      html+='</tr>';
+    }
+  }
+  html+='</tbody>';
+  table.innerHTML=html;
+}
+
+function renderInsights(){
+  const w=+document.getElementById('wake').value;
+  const em=+document.getElementById('em').value;
+  const ea=+document.getElementById('ea').value;
+  const deepH=tasks.filter(t=>t.type==='deep').reduce((s,t)=>s+t.hours,0);
+  const adminH=tasks.filter(t=>t.type==='admin').reduce((s,t)=>s+t.hours,0);
+  const peakLabel=em>=ea?`${fmt24(w,0)}–${fmt24(w+3,0)}`:`${fmt24(w+5,0)}–${fmt24(w+8,0)}`;
+  const afternoonDip=em>=4&&ea<=2;
+  const totalBlocked=blocks.reduce((s,b)=>{
+    const mins=(b.endH*60+b.endM)-(b.startH*60+b.startM);
+    return s+b.days.length*(mins/60);
+  },0);
+
+  document.getElementById('ins-out').innerHTML=[
+    {label:'Your peak deep work window',
+     text:`Your energy profile puts your best cognitive hours at ${peakLabel}. That is where your deep work tasks land on days they are assigned. Even 2–4 hours of uninterrupted focus in your peak window outperforms a full day of fragmented effort (Newport, 2016).`},
+    {label:'Attention residue risk',
+     text:`You have ${deepH.toFixed(1)}h of deep work and ${adminH.toFixed(1)}h of admin per day across assigned tasks. The planner places deep work first in your peak hours so admin does not bleed into your focus time. Switching tasks leaves attention residue that takes up to 20 minutes to fully clear (Leroy, 2009).`},
+    totalBlocked>0?{label:'Blocked time detected',
+     text:`You have blocked ${totalBlocked.toFixed(1)} total hours across your week. The planner has worked around them. If your deep work is being pushed to lower-energy slots because of blocked time, consider whether any of those commitments can be rescheduled.`}:null,
+    {label:afternoonDip?'Use your afternoon dip strategically':'Protect your free slots',
+     text:afternoonDip
+      ?'Your profile shows a significant afternoon energy dip — a normal circadian pattern. Admin and recovery are placed here intentionally. Your brain is consolidating learning from your morning deep work during this window.'
+      :'Free slots in your schedule are not wasted time. Low-energy windows consolidate what your brain processed during peak hours. Filling every gap with tasks reduces the quality of the work you already did.'}
+  ].filter(Boolean).map(i=>`<div class="insight"><div class="il">${i.label}</div><div class="it">${i.text}</div></div>`).join('');
+}
+
+function go(n){
+  document.querySelectorAll('.sp').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.si').forEach((s,i)=>{s.classList.toggle('active',i===n);s.classList.toggle('done',i<n)});
+  if(n===1){rebuildTimeOpts();buildDayBtns('bl-days')}
+  if(n===2)buildDayBtns('tk-days');
+  if(n===3)renderPlan();
+  if(n===4){renderPlan();renderInsights()}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetAll(){tasks.length=0;blocks.length=0;tid=0;bid=0;renderTasks();renderBlocks();go(0)}
+
+document.querySelectorAll('.db').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')));
+rebuildTimeOpts();
+</script>
+</body>
+</html>
